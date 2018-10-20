@@ -38,8 +38,8 @@ const env = getClientEnvironment(publicUrl);
 // style files regexes
 const cssRegex = /\.css$/;
 const cssModuleRegex = /\.module\.css$/;
-const sassRegex = /\.(scss|sass)$/;
-const sassModuleRegex = /\.module\.(scss|sass)$/;
+const sassRegex = /\.?global\.(scss|sass)$/;
+const sassModuleRegex = /\.(scss|sass)$/;
 
 // common function to get style loaders
 const getStyleLoaders = (cssOptions, preProcessor) => {
@@ -254,6 +254,23 @@ module.exports = {
                     },
                   },
                 ],
+                [
+                  require.resolve('babel-plugin-module-resolver'),
+                  {
+                    root: ['./frontend'],
+                    alias: {
+                      root: './frontend',
+                      assets: './frontend/assets',
+                      routes: './frontend/routes',
+                      utils: './frontend/utils',
+                      store: './frontend/store',
+                      components: './frontend/components',
+                      containers: './frontend/containers',
+                      config: './frontend/config',
+                      lang: './frontend/lang',
+                    },
+                  },
+                ],
               ],
               // This is a feature of `babel-loader` for webpack (not Babel itself).
               // It enables caching results in ./node_modules/.cache/babel-loader/
@@ -323,17 +340,17 @@ module.exports = {
           // Opt-in support for SASS (using .scss or .sass extensions).
           // Chains the sass-loader with the css-loader and the style-loader
           // to immediately apply all styles to the DOM.
-          // By default we support SASS Modules with the
-          // extensions .module.scss or .module.sass
+          // The default is to use SASS Modules
+          // Use global styling with the extensions .global.scss or .global.sass
           {
             test: sassRegex,
-            exclude: sassModuleRegex,
             use: getStyleLoaders({ importLoaders: 2 }, 'sass-loader'),
           },
           // Adds support for CSS Modules, but using SASS
-          // using the extension .module.scss or .module.sass
+          // using the extension .scss or .sass
           {
             test: sassModuleRegex,
+            exclude: sassRegex,
             use: getStyleLoaders(
               {
                 importLoaders: 2,
@@ -403,7 +420,7 @@ module.exports = {
     // to their corresponding output file so that tools can pick it up without
     // having to parse `index.html`.
     new ManifestPlugin({
-      fileName: 'asset-manifest.json',
+      fileName: 'rev-manifest.json',
       publicPath: publicPath,
     }),
   ],

@@ -18,9 +18,12 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const safePostCssParser = require('postcss-safe-parser');
 const ManifestPlugin = require('webpack-manifest-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin');
 const WorkboxWebpackPlugin = require('workbox-webpack-plugin');
 const ModuleScopePlugin = require('react-dev-utils/ModuleScopePlugin');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
+  .BundleAnalyzerPlugin;
 const getCSSModuleLocalIdent = require('react-dev-utils/getCSSModuleLocalIdent');
 const paths = require('./paths');
 const getClientEnvironment = require('./env');
@@ -40,6 +43,7 @@ const shouldUseSourceMap = process.env.GENERATE_SOURCEMAP !== 'false';
 // Some apps do not need the benefits of saving a web request, so not inlining the chunk
 // makes for a smoother build process.
 const shouldInlineRuntimeChunk = process.env.INLINE_RUNTIME_CHUNK !== 'false';
+const shouldAnalyze = process.env.ANALYZE === 'true';
 // `publicUrl` is just like `publicPath`, but we will provide it to our app
 // as %PUBLIC_URL% in `index.html` and `process.env.PUBLIC_URL` in JavaScript.
 // Omit trailing slash as %PUBLIC_URL%/xyz looks better than %PUBLIC_URL%xyz.
@@ -56,8 +60,8 @@ if (env.stringified['process.env'].NODE_ENV !== '"production"') {
 // style files regexes
 const cssRegex = /\.css$/;
 const cssModuleRegex = /\.module\.css$/;
-const sassRegex = /\.(scss|sass)$/;
-const sassModuleRegex = /\.module\.(scss|sass)$/;
+const sassRegex = /\.?global\.(scss|sass)$/;
+const sassModuleRegex = /\.(scss|sass)$/;
 
 // common function to get style loaders
 const getStyleLoaders = (cssOptions, preProcessor) => {
@@ -117,7 +121,10 @@ module.exports = {
   // You can exclude the *.map files from the build during deployment.
   devtool: shouldUseSourceMap ? 'source-map' : false,
   // In production, we only want to load the app code.
-  entry: [paths.appIndexJs],
+  entry: {
+    main: paths.appIndexJs,
+    // polyfills: path.join(__dirname, './polyfills.js'),
+  },
   output: {
     // The build folder.
     path: paths.appBuild,
@@ -198,12 +205,22 @@ module.exports = {
     // https://twitter.com/wSokra/status/969633336732905474
     // https://medium.com/webpack/webpack-4-code-splitting-chunk-graph-and-the-splitchunks-optimization-be739a861366
     splitChunks: {
-      chunks: 'all',
-      name: false,
+      chunks(chunk) {
+        // exclude `my-excluded-chunk`
+        return chunk.name !== 'polyfills';
+      },
+      name: true,
+      // cacheGroups: {
+      //   coreJS: {
+      //     test: /[\\/]node_modules[\\/](core-js)[\\/]/,
+      //     name: 'corejs',
+      //     chunks: 'all',
+      //   }
+      // }
     },
     // Keep the runtime chunk seperated to enable long term caching
     // https://twitter.com/wSokra/status/969679223278505985
-    runtimeChunk: true,
+    runtimeChunk: 'single',
   },
   resolve: {
     // This allows you to set a fallback for where Webpack should look for modules.
@@ -327,6 +344,23 @@ module.exports = {
                       svg: {
                         ReactComponent: '@svgr/webpack?-prettier,-svgo![path]',
                       },
+                    },
+                  },
+                ],
+                [
+                  require.resolve('babel-plugin-module-resolver'),
+                  {
+                    root: ['./frontend'],
+                    alias: {
+                      root: './frontend',
+                      assets: './frontend/assets',
+                      routes: './frontend/routes',
+                      utils: './frontend/utils',
+                      store: './frontend/store',
+                      components: './frontend/components',
+                      containers: './frontend/containers',
+                      config: './frontend/config',
+                      lang: './frontend/lang',
                     },
                   },
                 ],
@@ -476,7 +510,8 @@ module.exports = {
     }),
     // Inlines the webpack runtime script. This script is too small to warrant
     // a network request.
-    shouldInlineRuntimeChunk && new InlineChunkHtmlPlugin(HtmlWebpackPlugin, [/runtime~.+[.]js/]),
+    shouldInlineRuntimeChunk &&
+      new InlineChunkHtmlPlugin(HtmlWebpackPlugin, [/runtime~.+[.]js/]),
     // Makes some environment variables available in index.html.
     // The public URL is available as %PUBLIC_URL% in index.html, e.g.:
     // <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico">
@@ -500,9 +535,24 @@ module.exports = {
     // Generate a manifest file which contains a mapping of all asset filenames
     // to their corresponding output file so that tools can pick it up without
     // having to parse `index.html`.
+    // new ManifestPlugin({
+    //   fileName: 'asset-manifest.json',
+    //   publicPath: publicPath,
+    // }),
+    // new CopyWebpackPlugin([
+    //   {
+    //     from: path.join(paths.appSrc, 'version.js'),
+    //     to: path.join(paths.appBuild, 'version.js'),
+    //   },
+    // ]),
     new ManifestPlugin({
-      fileName: 'asset-manifest.json',
+      fileName: 'rev-manifest.json',
       publicPath: publicPath,
+      map: file => {
+        // Remove hash in manifest key #fixforcopyplugin
+        file.name = file.name.replace(/(\.[a-f0-9]{5,32})(\..*)$/, '$2');
+        return file;
+      },
     }),
     // Moment.js is an extremely popular library that bundles large locale files
     // by default due to how Webpack interprets its code. This is a practical
@@ -514,17 +564,22 @@ module.exports = {
     // the HTML & assets that are part of the Webpack build.
     new WorkboxWebpackPlugin.GenerateSW({
       clientsClaim: true,
-      exclude: [/\.map$/, /asset-manifest\.json$/],
+      exclude: [/\.map$/, /rev-manifest\.json$/],
       importWorkboxFrom: 'cdn',
       navigateFallback: publicUrl + '/index.html',
       navigateFallbackBlacklist: [
         // Exclude URLs starting with /_, as they're likely an API call
         new RegExp('^/_'),
+        new RegExp('^/api'),
         // Exclude URLs containing a dot, as they're likely a resource in
         // public/ and not a SPA route
         new RegExp('/[^/]+\\.[^/]+$'),
       ],
     }),
+    shouldAnalyze &&
+      new BundleAnalyzerPlugin({
+        analyzerMode: 'static',
+      }),
   ].filter(Boolean),
   // Some libraries import Node modules but don't use them in the browser.
   // Tell Webpack to provide empty mocks for them so importing them works.
