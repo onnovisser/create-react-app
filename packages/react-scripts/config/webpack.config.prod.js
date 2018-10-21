@@ -122,7 +122,7 @@ module.exports = {
   // In production, we only want to load the app code.
   entry: {
     main: paths.appIndexJs,
-    // polyfills: path.join(__dirname, './polyfills.js'),
+    polyfills: path.join(__dirname, './polyfills.js'),
   },
   output: {
     // The build folder.
@@ -203,23 +203,23 @@ module.exports = {
     // Automatically split vendor and commons
     // https://twitter.com/wSokra/status/969633336732905474
     // https://medium.com/webpack/webpack-4-code-splitting-chunk-graph-and-the-splitchunks-optimization-be739a861366
-    splitChunks: {
-      chunks(chunk) {
-        // exclude `my-excluded-chunk`
-        return chunk.name !== 'polyfills';
-      },
-      name: true,
-      // cacheGroups: {
-      //   coreJS: {
-      //     test: /[\\/]node_modules[\\/](core-js)[\\/]/,
-      //     name: 'corejs',
-      //     chunks: 'all',
-      //   }
-      // }
-    },
-    // Keep the runtime chunk seperated to enable long term caching
-    // https://twitter.com/wSokra/status/969679223278505985
-    runtimeChunk: 'single',
+    // splitChunks: {
+    //   chunks(chunk) {
+    //     // exclude `my-excluded-chunk`
+    //     return chunk.name !== 'polyfills';
+    //   },
+    //   name: true,
+    //   // cacheGroups: {
+    //   //   coreJS: {
+    //   //     test: /[\\/]node_modules[\\/](core-js)[\\/]/,
+    //   //     name: 'corejs',
+    //   //     chunks: 'all',
+    //   //   }
+    //   // }
+    // },
+    // // Keep the runtime chunk seperated to enable long term caching
+    // // https://twitter.com/wSokra/status/969679223278505985
+    // runtimeChunk: 'single',
   },
   resolve: {
     // This allows you to set a fallback for where Webpack should look for modules.
@@ -322,7 +322,38 @@ module.exports = {
               // @remove-on-eject-begin
               // babelrc: false,
               configFile: false,
-              presets: [require.resolve('babel-preset-react-app')],
+              presets: [
+                require.resolve('babel-preset-react-app'),
+                // [
+                //   // Latest stable ECMAScript features
+                //   require('@babel/preset-env').default,
+                //   {
+                //     // We want Create React App to be IE 9 compatible until React itself
+                //     // no longer works with IE 9
+                //     // targets: `
+                //     //   Chrome >= 52,
+                //     //   Firefox >= 47,
+                //     //   ie 11,
+                //     //   last 2 Edge versions,
+                //     //   Safari >= 8,
+                //     //   ios_saf >= 9,
+                //     //   last 2 and_chr versions
+                //     // `,
+                //     // Users cannot override this behavior because this Babel
+                //     // configuration is highly tuned for ES5 support
+                //     // ignoreBrowserslistConfig: true,
+                //     debug: true,
+                //     // If users import all core-js they're probably not concerned with
+                //     // bundle size. We shouldn't rely on magic to try and shrink it.
+                //     useBuiltIns: 'usage',
+                //     // Do not transform modules to CJS
+                //     modules: false,
+                //     // include: ["es6.set", "es6.map", "es6.symbol", "es6.promise"],
+                //     // Exclude transforms that make all code slower
+                //     exclude: ['transform-typeof-symbol'],
+                //   },
+                // ],
+              ],
               // Make sure we have a unique cache identifier, erring on the
               // side of caution.
               // We remove this when the user ejects because the default
@@ -336,6 +367,15 @@ module.exports = {
               ]),
               // @remove-on-eject-end
               plugins: [
+                // // class { handleClick = () => { } }
+                // // Enable loose mode to use assignment instead of defineProperty
+                // // See discussion in https://github.com/facebook/create-react-app/issues/4263
+                // [
+                //   require('@babel/plugin-proposal-class-properties').default,
+                //   {
+                //     loose: true,
+                //   },
+                // ],
                 [
                   require.resolve('babel-plugin-named-asset-import'),
                   {
@@ -343,23 +383,6 @@ module.exports = {
                       svg: {
                         ReactComponent: '@svgr/webpack?-prettier,-svgo![path]',
                       },
-                    },
-                  },
-                ],
-                [
-                  require.resolve('babel-plugin-module-resolver'),
-                  {
-                    root: ['./frontend'],
-                    alias: {
-                      root: './frontend',
-                      assets: './frontend/assets',
-                      routes: './frontend/routes',
-                      utils: './frontend/utils',
-                      store: './frontend/store',
-                      components: './frontend/components',
-                      containers: './frontend/containers',
-                      config: './frontend/config',
-                      lang: './frontend/lang',
                     },
                   },
                 ],
@@ -440,7 +463,6 @@ module.exports = {
           // extensions .module.scss or .module.sass
           {
             test: sassRegex,
-            exclude: sassModuleRegex,
             loader: getStyleLoaders(
               {
                 importLoaders: 2,
@@ -458,6 +480,7 @@ module.exports = {
           // using the extension .module.scss or .module.sass
           {
             test: sassModuleRegex,
+            exclude: sassRegex,
             loader: getStyleLoaders(
               {
                 importLoaders: 2,

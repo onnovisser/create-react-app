@@ -228,7 +228,7 @@ module.exports = {
                 'babel-preset-react-app/webpack-overrides'
               ),
               // @remove-on-eject-begin
-              babelrc: false,
+              // babelrc: false,
               configFile: false,
               presets: [require.resolve('babel-preset-react-app')],
               // Make sure we have a unique cache identifier, erring on the
@@ -251,23 +251,6 @@ module.exports = {
                       svg: {
                         ReactComponent: '@svgr/webpack?-prettier,-svgo![path]',
                       },
-                    },
-                  },
-                ],
-                [
-                  require.resolve('babel-plugin-module-resolver'),
-                  {
-                    root: ['./frontend'],
-                    alias: {
-                      root: './frontend',
-                      assets: './frontend/assets',
-                      routes: './frontend/routes',
-                      utils: './frontend/utils',
-                      store: './frontend/store',
-                      components: './frontend/components',
-                      containers: './frontend/containers',
-                      config: './frontend/config',
-                      lang: './frontend/lang',
                     },
                   },
                 ],
