@@ -46,6 +46,33 @@ function getServedPath(appPackageJson) {
   return ensureSlash(servedUrl, true);
 }
 
+const moduleFileExtensions = [
+  'web.mjs',
+  'mjs',
+  'web.js',
+  'js',
+  'web.ts',
+  'ts',
+  'web.tsx',
+  'tsx',
+  'json',
+  'web.jsx',
+  'jsx',
+];
+
+// Resolve file paths in the same order as webpack
+const resolveModule = (resolveFn, filePath) => {
+  const extension = moduleFileExtensions.find(extension =>
+    fs.existsSync(resolveFn(`${filePath}.${extension}`))
+  );
+
+  if (extension) {
+    return resolveFn(`${filePath}.${extension}`);
+  }
+
+  return resolveFn(`${filePath}.js`);
+};
+
 // config after eject: we're in ./config/
 module.exports = {
   dotenv: resolveApp('.env'),
@@ -54,11 +81,12 @@ module.exports = {
   appBuildRoot: resolveApp('public'),
   appPublic: resolveApp('frontend/public'),
   appHtml: resolveApp('frontend/public/index.html'),
-  appIndexJs: resolveApp('frontend/index.js'),
+  appIndexJs: resolveModule(resolveApp, 'frontend/index'),
   appPackageJson: resolveApp('package.json'),
   appSrc: resolveApp('frontend'),
+  appTsConfig: resolveApp('tsconfig.json'),
   yarnLockFile: resolveApp('yarn.lock'),
-  testsSetup: resolveApp('frontend/setupTests.js'),
+  testsSetup: resolveModule(resolveApp, 'frontend/setupTests'),
   proxySetup: resolveApp('frontend/setupProxy.js'),
   appNodeModules: resolveApp('node_modules'),
   publicUrl: getPublicUrl(resolveApp('package.json')),
@@ -74,14 +102,15 @@ module.exports = {
   dotenv: resolveApp('.env'),
   appPath: resolveApp('.'),
   appBuild: resolveApp('public/dist'),
-  appBuildRoot: resolveApp('public'),
   appPublic: resolveApp('frontend/public'),
+  appBuildRoot: resolveApp('public'),
   appHtml: resolveApp('frontend/public/index.html'),
-  appIndexJs: resolveApp('frontend/index.js'),
+  appIndexJs: resolveModule(resolveApp, 'frontend/index'),
   appPackageJson: resolveApp('package.json'),
   appSrc: resolveApp('frontend'),
+  appTsConfig: resolveApp('tsconfig.json'),
   yarnLockFile: resolveApp('yarn.lock'),
-  testsSetup: resolveApp('frontend/setupTests.js'),
+  testsSetup: resolveModule(resolveApp, 'frontend/setupTests'),
   proxySetup: resolveApp('frontend/setupProxy.js'),
   appNodeModules: resolveApp('node_modules'),
   publicUrl: getPublicUrl(resolveApp('package.json')),
@@ -109,11 +138,12 @@ if (
     appBuild: resolveOwn('../../build'),
     appPublic: resolveOwn('template/public'),
     appHtml: resolveOwn('template/public/index.html'),
-    appIndexJs: resolveOwn('template/src/index.js'),
+    appIndexJs: resolveModule(resolveOwn, 'template/src/index'),
     appPackageJson: resolveOwn('package.json'),
     appSrc: resolveOwn('template/src'),
+    appTsConfig: resolveOwn('template/tsconfig.json'),
     yarnLockFile: resolveOwn('template/yarn.lock'),
-    testsSetup: resolveOwn('template/src/setupTests.js'),
+    testsSetup: resolveModule(resolveOwn, 'template/src/setupTests'),
     proxySetup: resolveOwn('template/src/setupProxy.js'),
     appNodeModules: resolveOwn('node_modules'),
     publicUrl: getPublicUrl(resolveOwn('package.json')),
@@ -124,3 +154,5 @@ if (
   };
 }
 // @remove-on-eject-end
+
+module.exports.moduleFileExtensions = moduleFileExtensions;
