@@ -18,7 +18,6 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const safePostCssParser = require('postcss-safe-parser');
 const ManifestPlugin = require('webpack-manifest-plugin');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
 const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin');
 const WorkboxWebpackPlugin = require('workbox-webpack-plugin');
 const ModuleScopePlugin = require('react-dev-utils/ModuleScopePlugin');
@@ -321,7 +320,7 @@ module.exports = {
                 'babel-preset-react-app/webpack-overrides'
               ),
               // @remove-on-eject-begin
-              babelrc: false,
+              // babelrc: false,
               configFile: false,
               presets: [require.resolve('babel-preset-react-app')],
               // Make sure we have a unique cache identifier, erring on the
