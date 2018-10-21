@@ -1,3 +1,5 @@
+Custom changes to `react-scripts`. This is unlikely to work for you and you'd probably want to use `react-scripts` instead.
+
 ## Official Docs
 
 [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
