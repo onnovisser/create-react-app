@@ -38,6 +38,7 @@ const webpack = require('webpack');
 const bfj = require('bfj');
 const config = require('../config/webpack.config.prod');
 const paths = require('../config/paths');
+const callUserConfig = require('./utils/callUserConfig');
 const checkRequiredFiles = require('react-dev-utils/checkRequiredFiles');
 const formatWebpackMessages = require('react-dev-utils/formatWebpackMessages');
 const printHostingInstructions = require('react-dev-utils/printHostingInstructions');
@@ -68,6 +69,7 @@ const writeStatsJson = argv.indexOf('--stats') !== -1;
 // browserslist defaults.
 const { checkBrowsers } = require('react-dev-utils/browsersHelper');
 checkBrowsers(paths.appPath, isInteractive)
+  .then(() => callUserConfig(config, { production: true }))
   .then(() => {
     // First, read the current file sizes in build directory.
     // This lets us display how much they changed later.

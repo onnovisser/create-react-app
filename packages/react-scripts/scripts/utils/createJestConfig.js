@@ -18,13 +18,16 @@ module.exports = (resolve, rootDir, isEjecting) => {
   const setupTestsFileExtension =
     (setupTestsMatches && setupTestsMatches[1]) || 'js';
   const setupTestsFile = fs.existsSync(paths.testsSetup)
-    ? `<rootDir>/src/setupTests.${setupTestsFileExtension}`
+    ? `<rootDir>/frontend/setupTests.${setupTestsFileExtension}`
     : undefined;
 
   // TODO: I don't know if it's safe or not to just use / as path separator
   // in Jest configs. We need help from somebody with Windows to determine this.
   const config = {
-    collectCoverageFrom: ['src/**/*.{js,jsx,ts,tsx}', '!src/**/*.d.ts'],
+    collectCoverageFrom: [
+      'frontend/**/*.{js,jsx,ts,tsx}',
+      '!frontend/**/*.d.ts',
+    ],
 
     // TODO: this breaks Yarn PnP on eject.
     // But we can't simply emit this because it'll be an absolute path.
@@ -41,8 +44,8 @@ module.exports = (resolve, rootDir, isEjecting) => {
 
     setupTestFrameworkScriptFile: setupTestsFile,
     testMatch: [
-      '<rootDir>/src/**/__tests__/**/*.{js,jsx,ts,tsx}',
-      '<rootDir>/src/**/?(*.)(spec|test).{js,jsx,ts,tsx}',
+      '<rootDir>/frontend/**/__tests__/**/*.{js,jsx,ts,tsx}',
+      '<rootDir>/frontend/**/?(*.)(spec|test).{js,jsx,ts,tsx}',
     ],
     testEnvironment: 'jsdom',
     testURL: 'http://localhost',

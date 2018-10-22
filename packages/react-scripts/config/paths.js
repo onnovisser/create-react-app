@@ -18,6 +18,7 @@ const appDirectory = fs.realpathSync(process.cwd());
 const resolveApp = relativePath => path.resolve(appDirectory, relativePath);
 
 const envPublicUrl = process.env.PUBLIC_URL;
+const envConfigFile = process.env.CONFIG_FILE;
 
 function ensureSlash(inputPath, needsSlash) {
   const hasSlash = inputPath.endsWith('/');
@@ -90,6 +91,7 @@ module.exports = {
   proxySetup: resolveApp('frontend/setupProxy.js'),
   appNodeModules: resolveApp('node_modules'),
   publicUrl: getPublicUrl(resolveApp('package.json')),
+  configFile: resolveApp(envConfigFile || 'react.config.js'),
   servedPath: '/dist/',
   // servedPath: getServedPath(resolveApp('package.json')),
 };
@@ -114,6 +116,7 @@ module.exports = {
   proxySetup: resolveApp('frontend/setupProxy.js'),
   appNodeModules: resolveApp('node_modules'),
   publicUrl: getPublicUrl(resolveApp('package.json')),
+  configFile: resolveApp(envConfigFile || 'react.config.js'),
   servedPath: '/dist/',
   // servedPath: getServedPath(resolveApp('package.json')),
   // These properties only exist before ejecting:
