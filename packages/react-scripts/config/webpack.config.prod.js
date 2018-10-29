@@ -30,7 +30,6 @@ const paths = require('./paths');
 const getClientEnvironment = require('./env');
 const ModuleNotFoundPlugin = require('react-dev-utils/ModuleNotFoundPlugin');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin-alt');
-const typescriptFormatter = require('react-dev-utils/typescriptFormatter');
 // @remove-on-eject-begin
 const getCacheIdentifier = require('react-dev-utils/getCacheIdentifier');
 // @remove-on-eject-end
@@ -59,9 +58,6 @@ const env = getClientEnvironment(publicUrl);
 if (env.stringified['process.env'].NODE_ENV !== '"production"') {
   throw new Error('Production builds must have NODE_ENV=production.');
 }
-
-// Check if TypeScript is setup
-const useTypeScript = fs.existsSync(paths.appTsConfig);
 
 // style files regexes
 const cssRegex = /\.css$/;
@@ -243,9 +239,7 @@ module.exports = {
     // https://github.com/facebook/create-react-app/issues/290
     // `web` extension prefixes have been added for better support
     // for React Native Web.
-    extensions: paths.moduleFileExtensions
-      .map(ext => `.${ext}`)
-      .filter(ext => useTypeScript || !ext.includes('ts')),
+    extensions: paths.moduleFileExtensions.map(ext => `.${ext}`),
     alias: {
       // Support React Native Web
       // https://www.smashingmagazine.com/2016/08/a-glimpse-into-the-future-with-react-native-for-web/
@@ -621,24 +615,7 @@ module.exports = {
         async: false,
         checkSyntacticErrors: true,
         tsconfig: paths.appTsConfig,
-        compilerOptions: {
-          module: 'esnext',
-          moduleResolution: 'node',
-          resolveJsonModule: true,
-          isolatedModules: true,
-          noEmit: true,
-          jsx: 'preserve',
-        },
-        reportFiles: [
-          '**',
-          '!**/__tests__/**',
-          '!**/?(*.)(spec|test).*',
-          '!src/setupProxy.js',
-          '!src/setupTests.*',
-        ],
         watch: paths.appSrc,
-        silent: true,
-        formatter: typescriptFormatter,
       }),
   ].filter(Boolean),
   // Some libraries import Node modules but don't use them in the browser.

@@ -77,7 +77,6 @@ const program = new commander.Command(packageJson.name)
   )
   .option('--use-npm')
   .option('--use-pnp')
-  .option('--typescript')
   .allowUnknownOption()
   .on('--help', () => {
     console.log(`    Only ${chalk.green('<project-directory>')} is required.`);
@@ -181,19 +180,10 @@ createApp(
   program.scriptsVersion,
   program.useNpm,
   program.usePnp,
-  program.typescript,
   hiddenProgram.internalTestingTemplate
 );
 
-function createApp(
-  name,
-  verbose,
-  version,
-  useNpm,
-  usePnp,
-  useTypescript,
-  template
-) {
+function createApp(name, verbose, version, useNpm, usePnp, template) {
   const root = path.resolve(name);
   const appName = path.basename(root);
 
@@ -283,8 +273,7 @@ function createApp(
     originalDirectory,
     template,
     useYarn,
-    usePnp,
-    useTypescript
+    usePnp
   );
 }
 
@@ -367,21 +356,10 @@ function run(
   originalDirectory,
   template,
   useYarn,
-  usePnp,
-  useTypescript
+  usePnp
 ) {
   const packageToInstall = getInstallPackage(version, originalDirectory);
   const allDependencies = ['react', 'react-dom', packageToInstall];
-  if (useTypescript) {
-    // TODO: get user's node version instead of installing latest
-    allDependencies.push(
-      '@types/node',
-      '@types/react',
-      '@types/react-dom',
-      '@types/jest',
-      'typescript'
-    );
-  }
 
   console.log('Installing packages. This might take a couple of minutes.');
   getPackageName(packageToInstall)
