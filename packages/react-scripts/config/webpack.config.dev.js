@@ -168,6 +168,7 @@ module.exports = {
     ],
   },
   resolveLoader: {
+    alias: { lazy: path.resolve(__dirname, './lazy-component-loader') },
     plugins: [
       // Also related to Plug'n'Play, but this time it tells Webpack to load its loaders
       // from the current package.
@@ -196,7 +197,7 @@ module.exports = {
                 settings: { react: { version: '999.999.999' } },
               },
               ignore: false,
-              useEslintrc: false,
+              useEslintrc: true,
               // @remove-on-eject-end
             },
             loader: require.resolve('eslint-loader'),

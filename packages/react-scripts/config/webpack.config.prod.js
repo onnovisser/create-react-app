@@ -206,20 +206,20 @@ module.exports = {
     // Automatically split vendor and commons
     // https://twitter.com/wSokra/status/969633336732905474
     // https://medium.com/webpack/webpack-4-code-splitting-chunk-graph-and-the-splitchunks-optimization-be739a861366
-    // splitChunks: {
-    //   chunks(chunk) {
-    //     // exclude `my-excluded-chunk`
-    //     return chunk.name !== 'polyfills';
-    //   },
-    //   name: true,
-    //   // cacheGroups: {
-    //   //   coreJS: {
-    //   //     test: /[\\/]node_modules[\\/](core-js)[\\/]/,
-    //   //     name: 'corejs',
-    //   //     chunks: 'all',
-    //   //   }
-    //   // }
-    // },
+    splitChunks: {
+      // chunks(chunk) {
+      //   // exclude `my-excluded-chunk`
+      //   return chunk.name !== 'polyfills';
+      // },
+      name: true,
+      cacheGroups: {
+        //   coreJS: {
+        //     test: /[\\/]node_modules[\\/](core-js)[\\/]/,
+        //     name: 'corejs',
+        //     chunks: 'all',
+        //   }
+      },
+    },
     // // Keep the runtime chunk seperated to enable long term caching
     // // https://twitter.com/wSokra/status/969679223278505985
     // runtimeChunk: 'single',
@@ -258,6 +258,7 @@ module.exports = {
     ],
   },
   resolveLoader: {
+    alias: { lazy: path.resolve(__dirname, './lazy-component-loader') },
     plugins: [
       // Also related to Plug'n'Play, but this time it tells Webpack to load its loaders
       // from the current package.
@@ -288,7 +289,7 @@ module.exports = {
                 settings: { react: { version: '999.999.999' } },
               },
               ignore: false,
-              useEslintrc: false,
+              useEslintrc: true,
               // @remove-on-eject-end
             },
             loader: require.resolve('eslint-loader'),
