@@ -17,7 +17,3 @@ exports.pitch = function(remainingRequest) {
 		export default Comp;
 	`;
 };
-
-// require.ensure([], function (require) {
-//     cb( require(${loaderUtils.stringifyRequest(this, "!!" + remainingRequest)}) );
-// }${name ? (', '+JSON.stringify(name)) : ''});
