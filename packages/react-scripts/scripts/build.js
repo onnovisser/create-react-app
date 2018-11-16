@@ -36,7 +36,7 @@ const chalk = require('chalk');
 const fs = require('fs-extra');
 const webpack = require('webpack');
 const bfj = require('bfj');
-const config = require('../config/webpack.config.prod');
+const configFactory = require('../config/webpack.config');
 const paths = require('../config/paths');
 const callUserConfig = require('./utils/callUserConfig');
 const checkRequiredFiles = require('react-dev-utils/checkRequiredFiles');
@@ -64,6 +64,9 @@ if (!checkRequiredFiles([paths.appHtml, paths.appIndexJs])) {
 // Process CLI arguments
 const argv = process.argv.slice(2);
 const writeStatsJson = argv.indexOf('--stats') !== -1;
+
+// Generate configuration
+const config = configFactory('production');
 
 // We require that you explicitly set browsers and do not fall back to
 // browserslist defaults.

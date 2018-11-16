@@ -45,8 +45,8 @@ const {
 } = require('react-dev-utils/WebpackDevServerUtils');
 const openBrowser = require('react-dev-utils/openBrowser');
 const paths = require('../config/paths');
-const config = require('../config/webpack.config.dev');
 const callUserConfig = require('./utils/callUserConfig');
+const configFactory = require('../config/webpack.config');
 const createDevServerConfig = require('../config/webpackDevServer.config');
 
 const useYarn = fs.existsSync(paths.yarnLockFile);
@@ -81,6 +81,8 @@ if (process.env.HOST) {
 // We require that you explictly set browsers and do not fall back to
 // browserslist defaults.
 const { checkBrowsers } = require('react-dev-utils/browsersHelper');
+const config = configFactory('development');
+
 checkBrowsers(paths.appPath, isInteractive)
   .then(() => callUserConfig(config, { production: false }))
   .then(() => {
