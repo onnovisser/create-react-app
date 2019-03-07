@@ -18,14 +18,11 @@ module.exports = (resolve, rootDir, isEjecting) => {
   const setupTestsFileExtension =
     (setupTestsMatches && setupTestsMatches[1]) || 'js';
   const setupTestsFile = fs.existsSync(paths.testsSetup)
-    ? `<rootDir>/frontend/setupTests.${setupTestsFileExtension}`
+    ? `<rootDir>/src/setupTests.${setupTestsFileExtension}`
     : undefined;
 
   const config = {
-    collectCoverageFrom: [
-      'frontend/**/*.{js,jsx,ts,tsx}',
-      '!frontend/**/*.d.ts',
-    ],
+    collectCoverageFrom: ['src/**/*.{js,jsx,ts,tsx}', '!src/**/*.d.ts'],
 
     // TODO: this breaks Yarn PnP on eject.
     // But we can't simply emit this because it'll be an absolute path.
@@ -42,8 +39,8 @@ module.exports = (resolve, rootDir, isEjecting) => {
 
     setupTestFrameworkScriptFile: setupTestsFile,
     testMatch: [
-      '<rootDir>/frontend/**/__tests__/**/*.{js,jsx,ts,tsx}',
-      '<rootDir>/frontend/**/?(*.)(spec|test).{js,jsx,ts,tsx}',
+      '<rootDir>/src/**/__tests__/**/*.{js,jsx,ts,tsx}',
+      '<rootDir>/src/**/?(*.)(spec|test).{js,jsx,ts,tsx}',
     ],
     testEnvironment: 'jsdom',
     testURL: 'http://localhost',
