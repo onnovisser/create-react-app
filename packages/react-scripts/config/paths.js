@@ -90,6 +90,7 @@ module.exports = {
   proxySetup: resolveApp('src/setupProxy.js'),
   appNodeModules: resolveApp('node_modules'),
   publicUrl: getPublicUrl(resolveApp('package.json')),
+  configFile: resolveApp(envConfigFile || 'react.config.js'),
   servedPath: getServedPath(resolveApp('package.json')),
 };
 
@@ -112,6 +113,7 @@ module.exports = {
   proxySetup: resolveApp('src/setupProxy.js'),
   appNodeModules: resolveApp('node_modules'),
   publicUrl: getPublicUrl(resolveApp('package.json')),
+  configFile: resolveApp(envConfigFile || 'react.config.js'),
   servedPath: getServedPath(resolveApp('package.json')),
   // These properties only exist before ejecting:
   ownPath: resolveOwn('.'),

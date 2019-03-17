@@ -19,12 +19,27 @@ module.exports = async (config, env) => {
   const m = require(paths.configFile);
   const transformer = (m && m.default) || m;
   try {
-    await transformer(config, env, getWebpackHelpers()); //, Object.assign({}, env, { ssr }), new WebpackConfigHelpers(env.cwd));
+    await transformer(config, env, getWebpackHelpers(config)); //, Object.assign({}, env, { ssr }), new WebpackConfigHelpers(env.cwd));
   } catch (err) {
     throw new Error(`Error at ${paths.configFile}: \n` + err);
   }
 };
 
-function getWebpackHelpers() {
-  return { webpack };
+function getWebpackHelpers(config) {
+  return {
+    webpack,
+    getWebpackPluginsByName(name) {
+      return config.plugins
+        .map((p, i) => ({ index: i, plugin: p }))
+        .filter(
+          w =>
+            w.plugin &&
+            w.plugin.constructor &&
+            w.plugin.constructor.name === name
+        );
+    },
+    getBabelLoader() {
+      return config.module.rules[2].oneOf[1]
+    }
+  };
 }
